@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kushagra Kejriwal | Automation & Robotics Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020b18; --bg2: #041020; --bg3: #061528;
+    --cyan: #00d4ff; --cyan-dim: rgba(0,212,255,0.12); --cyan-glow: rgba(0,212,255,0.4);
+    --blue: #1a6fff; --green: #00ff9d; --green-dim: rgba(0,255,157,0.1);
+    --amber: #ffb800; --text: #d4eaf7; --text-dim: #5a8aaa;
+    --border: rgba(0,212,255,0.16); --border-strong: rgba(0,212,255,0.42);
+    --font-head: 'Orbitron', monospace; --font-body: 'Rajdhani', sans-serif; --font-mono: 'Share Tech Mono', monospace;
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;line-height:1.7;overflow-x:hidden}
+  ::-webkit-scrollbar{width:4px} ::-webkit-scrollbar-track{background:var(--bg2)} ::-webkit-scrollbar-thumb{background:var(--cyan);border-radius:2px}
+  #bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;opacity:0.5}
+  body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:1000}
+
+  nav{position:fixed;top:0;left:0;right:0;z-index:900;display:flex;align-items:center;justify-content:space-between;padding:0 5%;height:64px;background:rgba(2,11,24,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  .nav-logo{font-family:var(--font-head);font-size:.95rem;font-weight:700;color:var(--cyan);letter-spacing:.08em;text-decoration:none;text-shadow:0 0 16px var(--cyan-glow)}
+  .nav-logo span{color:var(--text)}
+  .nav-links{display:flex;gap:2rem;list-style:none}
+  .nav-links a{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.12em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .25s;position:relative}
+  .nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--cyan);transform:scaleX(0);transition:transform .25s;box-shadow:0 0 8px var(--cyan)}
+  .nav-links a:hover{color:var(--cyan)} .nav-links a:hover::after{transform:scaleX(1)}
+  .nav-status{font-family:var(--font-mono);font-size:.68rem;color:var(--green);letter-spacing:.08em;display:flex;align-items:center;gap:6px}
+  .dot-pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+
+  section{position:relative;z-index:10;padding:110px 8% 80px}
+  .section-label{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin-bottom:.5rem;display:flex;align-items:center;gap:12px}
+  .section-label::before{content:'';display:inline-block;width:34px;height:1px;background:var(--cyan);box-shadow:0 0 6px var(--cyan)}
+  .section-title{font-family:var(--font-head);font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700;color:var(--text);line-height:1.2;margin-bottom:1rem}
+  .section-title em{font-style:normal;color:var(--cyan);text-shadow:0 0 20px var(--cyan-glow)}
+  .section-divider{width:56px;height:2px;background:linear-gradient(90deg,var(--cyan),transparent);margin-bottom:3rem;box-shadow:0 0 8px var(--cyan-glow)}
+
+  #hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding-top:64px}
+  .hero-pre{font-family:var(--font-mono);font-size:.86rem;color:var(--cyan);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.2rem;opacity:0;animation:fadeUp .6s .3s forwards}
+  .hero-name{font-family:var(--font-head);font-size:clamp(2.6rem,7vw,5.8rem);font-weight:900;line-height:1;letter-spacing:-.02em;margin-bottom:.5rem;opacity:0;animation:fadeUp .7s .5s forwards}
+  .name-first{color:var(--text)} .name-last{color:var(--cyan);text-shadow:0 0 40px var(--cyan-glow),0 0 80px rgba(0,212,255,.18);display:block}
+  .hero-subtitle{font-family:var(--font-body);font-size:clamp(.95rem,1.8vw,1.2rem);font-weight:500;color:var(--text-dim);letter-spacing:.05em;margin-bottom:.7rem;opacity:0;animation:fadeUp .7s .7s forwards}
+  .hero-location{font-family:var(--font-mono);font-size:.76rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:1.5rem;opacity:0;animation:fadeUp .6s .85s forwards}
+  .hero-location span{color:var(--green)}
+  .hero-typewriter{font-family:var(--font-mono);font-size:clamp(.85rem,1.6vw,1.05rem);color:var(--green);margin-bottom:2.4rem;min-height:1.6em;opacity:0;animation:fadeUp .7s .95s forwards}
+  .cursor-blink{display:inline-block;width:2px;height:1em;background:var(--green);margin-left:2px;vertical-align:text-bottom;animation:blink .8s infinite;box-shadow:0 0 6px var(--green)}
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .hero-ctas{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:fadeUp .7s 1.1s forwards}
+  .btn{font-family:var(--font-head);font-size:.68rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;padding:.82rem 1.7rem;border-radius:2px;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:8px;border:none;background:none}
+  .btn-primary{background:var(--cyan);color:#020b18;box-shadow:0 0 20px var(--cyan-glow)} .btn-primary:hover{background:#fff;box-shadow:0 0 40px var(--cyan-glow);transform:translateY(-2px)}
+  .btn-outline{border:1px solid var(--border-strong);color:var(--cyan);background:var(--cyan-dim)} .btn-outline:hover{border-color:var(--cyan);background:rgba(0,212,255,.2);transform:translateY(-2px)}
+  .hero-badges{display:flex;gap:.8rem;flex-wrap:wrap;margin-top:2.2rem;opacity:0;animation:fadeUp .7s 1.3s forwards}
+  .hero-badge{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);padding:4px 12px;border:1px solid rgba(255,184,0,.25);border-radius:1px;background:rgba(255,184,0,.07)}
+  .hero-scroll{position:absolute;bottom:3vh;left:8%;display:flex;flex-direction:column;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.6rem;color:var(--text-dim);letter-spacing:.12em;opacity:0;animation:fadeIn 1s 1.6s forwards}
+  .scroll-line{width:1px;height:42px;background:linear-gradient(180deg,var(--cyan),transparent);animation:scrollLine 2s infinite}
+  @keyframes scrollLine{0%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1;transform:scaleY(1)}100%{opacity:0;transform:scaleY(1);transform-origin:bottom}}
+
+  #about{background:linear-gradient(180deg,var(--bg) 0%,var(--bg2) 100%)}
+  .about-grid{display:grid;grid-template-columns:1fr 1.6fr;gap:4rem;align-items:start}
+  .about-avatar{width:250px;height:250px;border-radius:2px;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .about-avatar-inner{font-family:var(--font-head);font-size:4.2rem;font-weight:900;color:var(--cyan);text-shadow:0 0 40px var(--cyan-glow)}
+  .about-avatar::before{content:'';position:absolute;top:-1px;left:-1px;width:26px;height:26px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan)}
+  .corner-br{position:absolute;bottom:-1px;right:-1px;width:26px;height:26px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan)}
+  .contact-pills{display:flex;flex-direction:column;gap:7px;margin-top:1.2rem;max-width:250px}
+  .contact-pill{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.07em;color:var(--text-dim);padding:6px 10px;border:1px solid var(--border);border-radius:2px;background:rgba(0,212,255,.03);text-decoration:none;transition:border-color .2s,color .2s;display:flex;align-items:center;gap:8px}
+  .contact-pill:hover{border-color:var(--border-strong);color:var(--cyan)}
+  .contact-pill-icon{color:var(--cyan);flex-shrink:0}
+  .about-text p{color:var(--text);font-size:1rem;margin-bottom:1rem;line-height:1.78;opacity:.92}
+  .about-text p strong{color:var(--cyan);font-weight:600}
+  .interest-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:1.4rem}
+  .interest-tag{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);padding:4px 11px;border:1px solid var(--border);border-radius:2px;background:var(--cyan-dim)}
+  .cert-card{margin-top:1.6rem;padding:.9rem 1.1rem;border:1px solid rgba(255,184,0,.2);border-radius:2px;background:rgba(255,184,0,.05);display:flex;gap:10px;align-items:flex-start}
+  .cert-title{font-family:var(--font-head);font-size:.72rem;font-weight:600;color:var(--amber);letter-spacing:.05em}
+  .cert-sub{font-family:var(--font-mono);font-size:.62rem;color:var(--text-dim);letter-spacing:.07em;margin-top:3px}
+
+  #skills{background:var(--bg2)}
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1.3rem}
+  .skill-group{border:1px solid var(--border);border-radius:2px;padding:1.4rem;background:rgba(0,212,255,.02);position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
+  .skill-group::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--cyan),transparent);box-shadow:0 0 8px var(--cyan-glow)}
+  .skill-group:hover{border-color:var(--border-strong);box-shadow:0 0 28px rgba(0,212,255,.05)}
+  .skill-group-title{font-family:var(--font-head);font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:1.1rem;display:flex;align-items:center;gap:9px}
+  .sg-icon{width:25px;height:25px;border:1px solid var(--border-strong);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.82rem;background:var(--cyan-dim);flex-shrink:0}
+  .skill-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .skill-chip{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.06em;color:var(--text);padding:4px 9px;border:1px solid var(--border);border-radius:2px;background:rgba(0,212,255,.04);transition:border-color .2s,color .2s,background .2s}
+  .skill-chip:hover{border-color:var(--border-strong);color:var(--cyan);background:var(--cyan-dim)}
+  .skill-chip.hl{border-color:rgba(0,212,255,.28);color:var(--cyan);background:var(--cyan-dim)}
+
+  #projects{background:linear-gradient(180deg,var(--bg2) 0%,var(--bg) 100%)}
+  .projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:1.3rem}
+  .project-card{border:1px solid var(--border);border-radius:2px;background:var(--bg3);padding:1.6rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;display:block;text-decoration:none;color:inherit}
+  .project-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,.04) 0%,transparent 60%);opacity:0;transition:opacity .3s}
+  .project-card:hover::before{opacity:1}
+  .project-card:hover{border-color:var(--border-strong);transform:translateY(-4px);box-shadow:0 14px 44px rgba(0,0,0,.5),0 0 28px rgba(0,212,255,.07)}
+  .project-card.featured{border-color:rgba(0,212,255,.3)}
+  .project-card.featured::after{content:'FLAGSHIP';position:absolute;top:13px;right:13px;font-family:var(--font-mono);font-size:.57rem;letter-spacing:.14em;color:var(--cyan);padding:3px 7px;border:1px solid var(--border-strong);border-radius:1px;background:var(--cyan-dim)}
+  .proj-num{font-family:var(--font-mono);font-size:.6rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:.55rem}
+  .proj-title{font-family:var(--font-head);font-size:.94rem;font-weight:700;color:var(--text);margin-bottom:.28rem;letter-spacing:.02em;line-height:1.3}
+  .proj-period{font-family:var(--font-mono);font-size:.6rem;color:var(--cyan);letter-spacing:.08em;margin-bottom:.75rem}
+  .proj-bullets{list-style:none;margin-bottom:1rem;display:flex;flex-direction:column;gap:5px}
+  .proj-bullets li{font-size:.84rem;color:var(--text-dim);line-height:1.55;padding-left:13px;position:relative}
+  .proj-bullets li::before{content:'▸';position:absolute;left:0;color:var(--cyan);font-size:.68rem;top:3px}
+  .proj-bullets li strong{color:var(--text);font-weight:600}
+  .proj-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:1rem}
+  .proj-tag{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.07em;color:var(--green);padding:3px 8px;border:1px solid rgba(0,255,157,.2);border-radius:1px;background:var(--green-dim);text-transform:uppercase}
+  .proj-links{display:flex;gap:1rem;padding-top:.85rem;border-top:1px solid var(--border);flex-wrap:wrap}
+  .proj-link{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.1em;color:var(--cyan);text-decoration:none;text-transform:uppercase;transition:text-shadow .2s;display:flex;align-items:center;gap:4px}
+  .proj-link:hover{text-shadow:0 0 8px var(--cyan-glow)}
+
+  #experience{background:var(--bg2)}
+  .timeline{position:relative}
+  .timeline::before{content:'';position:absolute;left:0;top:10px;bottom:10px;width:1px;background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,.08));box-shadow:0 0 8px rgba(0,212,255,.25)}
+  .tl-item{padding-left:3rem;position:relative;margin-bottom:2rem;opacity:0;transform:translateX(-18px);transition:opacity .6s,transform .6s}
+  .tl-item.visible{opacity:1;transform:translateX(0)}
+  .tl-dot{position:absolute;left:-6px;top:10px;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--cyan);box-shadow:0 0 10px var(--cyan-glow);transition:background .3s}
+  .tl-item:hover .tl-dot{background:var(--cyan)}
+  .tl-card{border:1px solid var(--border);border-radius:2px;padding:1.2rem 1.4rem;background:rgba(0,212,255,.02);transition:border-color .3s}
+  .tl-item:hover .tl-card{border-color:var(--border-strong)}
+  .tl-period{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;margin-bottom:.32rem}
+  .tl-role{font-family:var(--font-head);font-size:.92rem;font-weight:600;color:var(--text);margin-bottom:.18rem;line-height:1.3}
+  .tl-org{font-family:var(--font-body);font-size:.86rem;font-weight:500;color:var(--text-dim);margin-bottom:.75rem}
+  .tl-bullets{list-style:none;display:flex;flex-direction:column;gap:5px}
+  .tl-bullets li{font-size:.86rem;color:var(--text-dim);line-height:1.58;padding-left:13px;position:relative}
+  .tl-bullets li::before{content:'▸';position:absolute;left:0;color:var(--cyan);font-size:.68rem;top:3px}
+  .tl-bullets li strong{color:var(--text);font-weight:600}
+  .tl-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:.8rem}
+  .tl-badge{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.08em;color:var(--text-dim);padding:2px 8px;border:1px solid var(--border);border-radius:1px}
+  .edu-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;margin-top:2.8rem}
+  .edu-card{border:1px solid var(--border);border-radius:2px;padding:1.2rem 1.4rem;background:rgba(0,212,255,.02);position:relative;overflow:hidden;transition:border-color .3s}
+  .edu-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),transparent)}
+  .edu-card:hover{border-color:var(--border-strong)}
+  .edu-degree{font-family:var(--font-head);font-size:.78rem;font-weight:600;color:var(--text);margin-bottom:.28rem;line-height:1.3}
+  .edu-school{font-family:var(--font-body);font-size:.86rem;color:var(--text-dim);margin-bottom:.45rem}
+  .edu-period{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.1em;color:var(--cyan);margin-bottom:.45rem}
+  .edu-detail{font-family:var(--font-mono);font-size:.63rem;color:var(--text-dim);letter-spacing:.06em}
+  .edu-detail strong{color:var(--amber)}
+
+  #contact{background:var(--bg)}
+  .contact-wrap{display:grid;grid-template-columns:1fr 1.15fr;gap:4rem;align-items:start}
+  .contact-heading{font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:.65rem}
+  .contact-text{font-size:.93rem;color:var(--text-dim);line-height:1.7;margin-bottom:1.6rem}
+  .c-item{display:flex;align-items:center;gap:11px;margin-bottom:.75rem;padding:.72rem;border:1px solid var(--border);border-radius:2px;background:rgba(0,212,255,.02);transition:border-color .25s;text-decoration:none}
+  .c-item:hover{border-color:var(--border-strong)}
+  .c-icon{width:33px;height:33px;border-radius:2px;background:var(--cyan-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.88rem;flex-shrink:0}
+  .c-label{font-family:var(--font-mono);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);display:block}
+  .c-value{font-family:var(--font-body);font-size:.88rem;font-weight:600;color:var(--text);display:block;margin-top:1px}
+  .contact-form{display:flex;flex-direction:column;gap:.85rem}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:.85rem}
+  .form-group{display:flex;flex-direction:column;gap:4px}
+  .form-label{font-family:var(--font-mono);font-size:.63rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+  .form-input,.form-textarea{background:rgba(0,212,255,.04);border:1px solid var(--border);border-radius:2px;padding:.7rem 1rem;color:var(--text);font-family:var(--font-body);font-size:.93rem;outline:none;transition:border-color .25s,box-shadow .25s;resize:none}
+  .form-input:focus,.form-textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,212,255,.1)}
+  .form-input::placeholder,.form-textarea::placeholder{color:var(--text-dim);opacity:.42}
+  .form-textarea{min-height:115px}
+  .form-submit{align-self:flex-start;font-family:var(--font-head);font-size:.68rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;padding:.85rem 2rem;background:var(--cyan);color:#020b18;border:none;border-radius:2px;cursor:pointer;transition:all .25s;box-shadow:0 0 20px var(--cyan-glow);position:relative;overflow:hidden}
+  .form-submit:hover{background:#fff;box-shadow:0 0 40px var(--cyan-glow);transform:translateY(-2px)}
+  .form-submit::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);transform:translateX(-100%);transition:transform .5s}
+  .form-submit:hover::after{transform:translateX(100%)}
+
+  footer{position:relative;z-index:10;border-top:1px solid var(--border);padding:1.7rem 8%;display:flex;justify-content:space-between;align-items:center;background:var(--bg2);flex-wrap:wrap;gap:1rem}
+  .footer-copy{font-family:var(--font-mono);font-size:.66rem;letter-spacing:.08em;color:var(--text-dim)}
+  .footer-copy strong{color:var(--cyan)}
+  .footer-links{display:flex;gap:1.4rem}
+  .footer-link{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.1em;color:var(--text-dim);text-decoration:none;text-transform:uppercase;transition:color .2s}
+  .footer-link:hover{color:var(--cyan)}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+  .rd1{transition-delay:.12s} .rd2{transition-delay:.24s} .rd3{transition-delay:.36s}
+
+  @media(max-width:780px){
+    .about-grid,.contact-wrap,.edu-grid{grid-template-columns:1fr;gap:2rem}
+    .form-row{grid-template-columns:1fr}
+    nav{padding:0 5%} .nav-links{display:none}
+    footer{flex-direction:column;align-items:flex-start}
+    .about-avatar{width:180px;height:180px} .about-avatar-inner{font-size:3rem}
+  }
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <a class="nav-logo" href="#hero">KUSHAGRA <span>KEJRIWAL</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-status"><div class="dot-pulse"></div>Open to Internships</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-pre">// Automation &amp; Robotics Engineering Student</div>
+  <h1 class="hero-name">
+    <span class="name-first">Kushagra</span>
+    <span class="name-last">Kejriwal</span>
+  </h1>
+  <p class="hero-subtitle">USAR — Guru Gobind Singh Indraprastha University · Delhi, India</p>
+  <div class="hero-location">B.Tech Automation &amp; Robotics &nbsp;·&nbsp; <span>2023 – 2027</span> &nbsp;·&nbsp; CGPA 6.43</div>
+  <div class="hero-typewriter" id="typewriter">&nbsp;<span class="cursor-blink"></span></div>
+  <div class="hero-ctas">
+    <a href="#projects" class="btn btn-primary">View Projects ↓</a>
+    <a href="#experience" class="btn btn-outline">Experience</a>
+    <a href="mailto:kushagrakejriwal17@gmail.com" class="btn btn-outline">Email Me ↗</a>
+  </div>
+  <div class="hero-badges">
+    <span class="hero-badge">Swarm Robotics</span>
+    <span class="hero-badge">Embedded AI Systems</span>
+    <span class="hero-badge">Autonomous Control</span>
+    <span class="hero-badge">Human-Robot Interaction</span>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div>Scroll</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">01 / About</div>
+  <h2 class="section-title">Who <em>Am I</em></h2>
+  <div class="section-divider"></div>
+  <div class="about-grid">
+    <div class="reveal">
+      <div class="about-avatar">
+        <span class="about-avatar-inner">KK</span>
+        <div class="corner-br"></div>
+      </div>
+      <div class="contact-pills">
+        <a class="contact-pill" href="mailto:kushagrakejriwal17@gmail.com">
+          <span class="contact-pill-icon">✉</span> kushagrakejriwal17@gmail.com
+        </a>
+        <a class="contact-pill" href="tel:+918851385932">
+          <span class="contact-pill-icon">📞</span> +91-8851385932
+        </a>
+        <a class="contact-pill" href="YOUR_LINKEDIN_URL" target="_blank">
+          <span class="contact-pill-icon">in</span> LinkedIn ↗
+        </a>
+        <a class="contact-pill" href="YOUR_GITHUB_URL" target="_blank">
+          <span class="contact-pill-icon">⬡</span> GitHub ↗
+        </a>
+      </div>
+    </div>
+    <div class="about-text reveal rd1">
+      <p>I'm <strong>Kushagra Kejriwal</strong>, an Automation &amp; Robotics Engineering student at <strong>USAR, GGSIPU</strong> with proven hands-on experience designing decentralized swarm intelligence systems, embedded control algorithms, and production-grade AI pipelines.</p>
+      <p>As a research intern, I <strong>reduced inter-drone communication latency by 40%</strong> and <strong>improved swarm efficiency by 30%</strong> through original algorithm design. As an independent builder, I architected a fully local 5-subsystem AI voice assistant with <strong>zero cloud dependency</strong> — demonstrating the system-level thinking that bridges academic theory with real-world engineering.</p>
+      <div class="interest-tags">
+        <span class="interest-tag">Swarm Robotics</span>
+        <span class="interest-tag">Embedded AI</span>
+        <span class="interest-tag">Autonomous Control</span>
+        <span class="interest-tag">Human-Robot Interaction</span>
+      </div>
+      <div class="cert-card">
+        <div style="font-size:1.1rem;flex-shrink:0;margin-top:2px">🏅</div>
+        <div>
+          <div class="cert-title">Google AI Professional Certificate</div>
+          <div class="cert-sub">Google · 2024 · TensorFlow, ML Pipelines, Neural Networks, Applied AI</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">02 / Skills</div>
+  <h2 class="section-title">Technical <em>Arsenal</em></h2>
+  <div class="section-divider"></div>
+  <div class="skills-grid">
+    <div class="skill-group reveal">
+      <div class="skill-group-title"><div class="sg-icon">💻</div>Programming</div>
+      <div class="skill-chips">
+        <span class="skill-chip hl">Python (Advanced)</span>
+        <span class="skill-chip hl">C / C++ (Embedded)</span>
+        <span class="skill-chip">SQL</span>
+        <span class="skill-chip">Bash / Batch Scripting</span>
+      </div>
+    </div>
+    <div class="skill-group reveal rd1">
+      <div class="skill-group-title"><div class="sg-icon">🤖</div>Robotics &amp; Control</div>
+      <div class="skill-chips">
+        <span class="skill-chip hl">ESP32</span>
+        <span class="skill-chip hl">PID / LQR / P-Controller</span>
+        <span class="skill-chip">Sensor Fusion (IMU + Encoders)</span>
+        <span class="skill-chip">ESP-NOW Protocol</span>
+        <span class="skill-chip">I²C / SPI / UART</span>
+        <span class="skill-chip">Modular Robot Design</span>
+        <span class="skill-chip">Swarm Algorithms</span>
+      </div>
+    </div>
+    <div class="skill-group reveal rd2">
+      <div class="skill-group-title"><div class="sg-icon">🧠</div>AI &amp; Machine Learning</div>
+      <div class="skill-chips">
+        <span class="skill-chip hl">Local LLM (Ollama)</span>
+        <span class="skill-chip hl">OpenAI Whisper (STT)</span>
+        <span class="skill-chip">openWakeWord</span>
+        <span class="skill-chip">Sentence Transformers</span>
+        <span class="skill-chip">Swarm Intelligence</span>
+        <span class="skill-chip">FreeRTOS</span>
+      </div>
+    </div>
+    <div class="skill-group reveal">
+      <div class="skill-group-title"><div class="sg-icon">🗄</div>RAG &amp; Memory Systems</div>
+      <div class="skill-chips">
+        <span class="skill-chip hl">ChromaDB (Vector DB)</span>
+        <span class="skill-chip hl">Retrieval-Augmented Generation</span>
+        <span class="skill-chip">Semantic Embeddings</span>
+        <span class="skill-chip">Long-Term Memory Architecture</span>
+      </div>
+    </div>
+    <div class="skill-group reveal rd1">
+      <div class="skill-group-title"><div class="sg-icon">🎙</div>Voice &amp; NLP</div>
+      <div class="skill-chips">
+        <span class="skill-chip hl">Wake Word Detection</span>
+        <span class="skill-chip">Piper TTS</span>
+        <span class="skill-chip">Voice Pipeline Design</span>
+        <span class="skill-chip">Audio Signal Processing (8× gain)</span>
+      </div>
+    </div>
+    <div class="skill-group reveal rd2">
+      <div class="skill-group-title"><div class="sg-icon">⚙️</div>Tools &amp; System Design</div>
+      <div class="skill-chips">
+        <span class="skill-chip hl">Git / GitHub</span>
+        <span class="skill-chip">MQTT Protocol</span>
+        <span class="skill-chip">NMEA 0183 Parsing</span>
+        <span class="skill-chip">Windows Automation</span>
+        <span class="skill-chip">Real-Time GUI Dev</span>
+        <span class="skill-chip">Decentralized Architecture</span>
+        <span class="skill-chip">Hardware-Software Co-Design</span>
+        <span class="skill-chip">DuckDuckGo Search API</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">03 / Projects</div>
+  <h2 class="section-title">What I've <em>Built</em></h2>
+  <div class="section-divider"></div>
+  <p style="font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);letter-spacing:.1em;margin-bottom:2rem">
+    ⚠ Replace <code style="color:var(--cyan)">YOUR_REPO_LINK</code> placeholders below with your actual GitHub repository URLs.
+  </p>
+  <div class="projects-grid">
+
+    <a class="project-card featured reveal" href="YOUR_JARVIS_REPO_LINK" target="_blank">
+      <div class="proj-num">// 001</div>
+      <div class="proj-title">JARVIS — Locally-Hosted AI Voice Assistant</div>
+      <div class="proj-period">2025 – Ongoing · Personal Project</div>
+      <ul class="proj-bullets">
+        <li>Architected a fully local, <strong>5-subsystem AI assistant</strong> (LLM + STT + TTS + wake word + RAG) with <strong>zero cloud dependency</strong> on a 16GB RAM laptop.</li>
+        <li>Built a RAG memory system using <strong>ChromaDB + sentence-transformer embeddings</strong> for context-aware conversations that persist across sessions.</li>
+        <li>Achieved <strong>peak wake-word confidence of 0.994</strong> via tuned openWakeWord threshold and flag-based audio gate suppressing false triggers during TTS.</li>
+        <li>Automated <strong>8+ OS-level controls</strong> — volume, brightness, WiFi, Bluetooth, screenshots, power — via modular Python tool functions.</li>
+      </ul>
+      <div class="proj-tags">
+        <span class="proj-tag">Python</span><span class="proj-tag">Ollama / llama3.2</span><span class="proj-tag">Whisper STT</span>
+        <span class="proj-tag">Piper TTS</span><span class="proj-tag">ChromaDB</span><span class="proj-tag">openWakeWord</span><span class="proj-tag">RAG</span>
+      </div>
+      <div class="proj-links"><span class="proj-link">GitHub ↗</span></div>
+    </a>
+
+    <a class="project-card reveal rd1" href="YOUR_MODULAR_ROBOTICS_REPO_LINK" target="_blank">
+      <div class="proj-num">// 002</div>
+      <div class="proj-title">Autonomous Modular Robotics Framework</div>
+      <div class="proj-period">Jan 2026 · ~4 weeks · Personal Project</div>
+      <ul class="proj-bullets">
+        <li>Architected a <strong>decentralized control system</strong> for self-assembling robotic units using ESP32 with I²C/SPI, eliminating single-point-of-failure.</li>
+        <li>Engineered a <strong>real-time GUI dashboard</strong> for telemetry across all nodes, cutting manual observation overhead by ~60%.</li>
+        <li>Prototyped <strong>3 fully functional modular robots</strong> with hot-swappable docking interfaces within a single month.</li>
+      </ul>
+      <div class="proj-tags">
+        <span class="proj-tag">ESP32</span><span class="proj-tag">I²C / SPI</span><span class="proj-tag">C++</span>
+        <span class="proj-tag">Decentralized</span><span class="proj-tag">Real-Time GUI</span>
+      </div>
+      <div class="proj-links"><span class="proj-link">GitHub ↗</span></div>
+    </a>
+
+    <a class="project-card reveal rd2" href="YOUR_SWARM_CONTROL_REPO_LINK" target="_blank">
+      <div class="proj-num">// 003</div>
+      <div class="proj-title">Swarm Mission Control System</div>
+      <div class="proj-period">Jan 2026 · ~3 weeks · Personal Project</div>
+      <ul class="proj-bullets">
+        <li>Developed a <strong>Python multi-robot coordinator</strong> using ESP-NOW protocol for reliable low-latency exchange, scalable from 2 to 10+ units.</li>
+        <li>Implemented <strong>P-Controller algorithms</strong> to optimize swarm formation alignment with measurable positioning precision improvements.</li>
+        <li>Validated <strong>response time consistency</strong> as robot count scaled — confirming distributed system robustness under variable load.</li>
+      </ul>
+      <div class="proj-tags">
+        <span class="proj-tag">Python</span><span class="proj-tag">ESP-NOW</span><span class="proj-tag">ESP32</span>
+        <span class="proj-tag">P-Controller</span><span class="proj-tag">Swarm</span>
+      </div>
+      <div class="proj-links"><span class="proj-link">GitHub ↗</span></div>
+    </a>
+
+    <a class="project-card reveal" href="YOUR_BIPEDAL_REPO_LINK" target="_blank">
+      <div class="proj-num">// 004</div>
+      <div class="proj-title">Rolling Bipedal Self-Balancing Robot</div>
+      <div class="proj-period">Apr 2026 · ~3 weeks · Personal Project</div>
+      <ul class="proj-bullets">
+        <li>Developed <strong>embedded firmware in C++ on ESP32</strong> using multi-sensor fusion (IMU + wheel encoders) with sub-millisecond state update rates.</li>
+        <li>Implemented an <strong>LQR optimal control algorithm</strong> achieving stable movement on uneven surfaces where simpler PID approaches failed.</li>
+      </ul>
+      <div class="proj-tags">
+        <span class="proj-tag">C++</span><span class="proj-tag">ESP32</span><span class="proj-tag">LQR Control</span>
+        <span class="proj-tag">IMU</span><span class="proj-tag">Sensor Fusion</span>
+      </div>
+      <div class="proj-links"><span class="proj-link">GitHub ↗</span></div>
+    </a>
+
+    <a class="project-card reveal rd1" href="YOUR_GPS_FLEET_REPO_LINK" target="_blank">
+      <div class="proj-num">// 005</div>
+      <div class="proj-title">Logistics GPS Fleet Tracking System</div>
+      <div class="proj-period">Feb 2026 · System Architecture Design</div>
+      <ul class="proj-bullets">
+        <li>Designed full system architecture specifying <strong>NMEA 0183 GPS parsing, MQTT telemetry</strong>, and a map-based visualization layer for fleet operators.</li>
+        <li>Produced a hardware selection report evaluating <strong>Neo-6M vs u-blox M8N</strong> GPS modules against accuracy, update rate, and cost.</li>
+      </ul>
+      <div class="proj-tags">
+        <span class="proj-tag">NMEA 0183</span><span class="proj-tag">MQTT</span><span class="proj-tag">GPS</span>
+        <span class="proj-tag">System Design</span><span class="proj-tag">Python</span>
+      </div>
+      <div class="proj-links"><span class="proj-link">GitHub ↗</span></div>
+    </a>
+
+    <a class="project-card reveal rd2" href="YOUR_PONG_AI_REPO_LINK" target="_blank">
+      <div class="proj-num">// 006</div>
+      <div class="proj-title">Heuristic-Based Game Engine — Pong AI</div>
+      <div class="proj-period">Jan 2026 · ~1 week · Personal Project</div>
+      <ul class="proj-bullets">
+        <li>Built a <strong>heuristic-driven AI opponent</strong> that dynamically adjusts reaction speed and prediction angle based on player performance patterns.</li>
+        <li>Designed a <strong>fixed 60 FPS game loop</strong> with decoupled physics/render layers — architecture directly applicable to embedded control loops.</li>
+      </ul>
+      <div class="proj-tags">
+        <span class="proj-tag">Python</span><span class="proj-tag">Heuristic AI</span>
+        <span class="proj-tag">Game Engine</span><span class="proj-tag">Real-Time Systems</span>
+      </div>
+      <div class="proj-links"><span class="proj-link">GitHub ↗</span></div>
+    </a>
+
+  </div>
+</section>
+
+<!-- EXPERIENCE & EDUCATION -->
+<section id="experience">
+  <div class="section-label">04 / Experience &amp; Education</div>
+  <h2 class="section-title">My <em>Journey</em></h2>
+  <div class="section-divider"></div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot"></div>
+      <div class="tl-card">
+        <div class="tl-period">Jun 2025 – Aug 2025</div>
+        <div class="tl-role">Swarm Drones Research Intern</div>
+        <div class="tl-org">AICTE Lab, USICT — Guru Gobind Singh Indraprastha University · Delhi, India</div>
+        <ul class="tl-bullets">
+          <li>Boosted swarm drone mission efficiency by <strong>30%</strong> by implementing optimized swarm intelligence algorithms improving formation stability and task-completion accuracy across multi-drone clusters.</li>
+          <li>Reduced inter-drone communication latency by <strong>40%</strong> by engineering decentralized mesh-networking protocols, replacing fragile single-point relay architectures.</li>
+          <li>Validated swarm behavior across <strong>10+ simulation and physical lab test cycles</strong>, generating performance benchmarks to iteratively refine algorithm parameters.</li>
+          <li>Produced structured technical documentation for all swarm protocol implementations, enabling future lab cohorts to replicate and extend findings.</li>
+        </ul>
+        <div class="tl-badges">
+          <span class="tl-badge">Swarm Intelligence</span>
+          <span class="tl-badge">Mesh Networking</span>
+          <span class="tl-badge">Algorithm Design</span>
+          <span class="tl-badge">Research</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:2.5rem">
+    <div class="section-label" style="margin-bottom:1.4rem">Education</div>
+    <div class="edu-grid">
+      <div class="edu-card reveal">
+        <div class="edu-period">Aug 2023 – May 2027 (Expected)</div>
+        <div class="edu-degree">B.Tech — Automation &amp; Robotics Engineering</div>
+        <div class="edu-school">University School of Automation and Robotics (USAR), GGSIPU · Delhi, India</div>
+        <div class="edu-detail">CGPA: <strong>6.43 / 10</strong></div>
+        <div class="edu-detail" style="margin-top:5px;opacity:.75">Control Systems · Embedded Systems · Robotics &amp; Automation · AI &amp; ML · Digital Electronics · Signals &amp; Systems</div>
+      </div>
+      <div class="edu-card reveal rd1">
+        <div class="edu-period">Completed 2023</div>
+        <div class="edu-degree">Class XII — Science (PCM)</div>
+        <div class="edu-school">Mount Carmel School · Delhi, India</div>
+        <div class="edu-detail">Aggregate: <strong>75%</strong> · Physics, Chemistry, Mathematics</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-label">05 / Contact</div>
+  <h2 class="section-title">Let's <em>Connect</em></h2>
+  <div class="section-divider"></div>
+  <div class="contact-wrap">
+    <div class="reveal">
+      <div class="contact-heading">Open to Internships &amp; Collaborations</div>
+      <div class="contact-text">I'm actively seeking robotics and AI internships, research roles, and project collaborations. If you're building something intelligent — let's talk.</div>
+      <a class="c-item" href="mailto:kushagrakejriwal17@gmail.com">
+        <div class="c-icon">✉</div>
+        <div><span class="c-label">Email</span><span class="c-value">kushagrakejriwal17@gmail.com</span></div>
+      </a>
+      <a class="c-item" href="tel:+918851385932">
+        <div class="c-icon">📞</div>
+        <div><span class="c-label">Phone</span><span class="c-value">+91-8851385932</span></div>
+      </a>
+      <a class="c-item" href="YOUR_LINKEDIN_URL" target="_blank">
+        <div class="c-icon" style="font-weight:700;font-size:.78rem">in</div>
+        <div><span class="c-label">LinkedIn</span><span class="c-value">Update with your profile URL</span></div>
+      </a>
+      <a class="c-item" href="YOUR_GITHUB_URL" target="_blank">
+        <div class="c-icon">⬡</div>
+        <div><span class="c-label">GitHub</span><span class="c-value">Update with your GitHub URL</span></div>
+      </a>
+    </div>
+    <form class="contact-form reveal rd1" onsubmit="handleForm(event)">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name</label><input class="form-input" type="text" placeholder="Your name" required></div>
+        <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="your@email.com" required></div>
+      </div>
+      <div class="form-group"><label class="form-label">Subject</label><input class="form-input" type="text" placeholder="Internship / Collaboration / Research" required></div>
+      <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" placeholder="Tell me about the opportunity or project..." required></textarea></div>
+      <button class="form-submit" type="submit" id="form-btn">Transmit Message →</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-copy">© 2026 <strong>Kushagra Kejriwal</strong> · Automation &amp; Robotics · Delhi, India</div>
+  <div class="footer-links">
+    <a class="footer-link" href="#hero">Top ↑</a>
+    <a class="footer-link" href="mailto:kushagrakejriwal17@gmail.com">Email</a>
+    <a class="footer-link" href="YOUR_GITHUB_URL" target="_blank">GitHub</a>
+    <a class="footer-link" href="YOUR_LINKEDIN_URL" target="_blank">LinkedIn</a>
+  </div>
+</footer>
+
+<script>
+(function(){
+  const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d');
+  let W,H,P=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  function mkP(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-.5)*.38;this.vy=(Math.random()-.5)*.38;this.r=Math.random()*1.6+.5;this.a=Math.random()*.5+.2}
+  mkP.prototype.u=function(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W)this.vx*=-1;if(this.y<0||this.y>H)this.vy*=-1};
+  function init(){P=[];for(let i=0;i<65;i++)P.push(new mkP())}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<P.length;i++){
+      const p=P[i];p.u();
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(0,212,255,${p.a})`;ctx.fill();
+      for(let j=i+1;j<P.length;j++){
+        const q=P[j],dx=p.x-q.x,dy=p.y-q.y,d=Math.sqrt(dx*dx+dy*dy);
+        if(d<140){ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.strokeStyle=`rgba(0,212,255,${(1-d/140)*.15})`;ctx.lineWidth=.6;ctx.stroke()}
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize',()=>{resize();init()});
+  resize();init();draw();
+})();
+
+(function(){
+  const el=document.getElementById('typewriter');
+  const lines=[
+    '> Designing decentralized swarm intelligence systems...',
+    '> Reduced inter-drone latency by 40% through algorithm design.',
+    '> JARVIS: 5-subsystem local AI, zero cloud dependency.',
+    '> Embedded control: LQR, PID, Sensor Fusion on ESP32.',
+    '> Bridging academic theory with real-world engineering.',
+  ];
+  let li=0,ci=0,del=false;
+  const cur='<span class="cursor-blink"></span>';
+  function type(){
+    const line=lines[li];
+    if(!del){ci++;el.innerHTML=line.substring(0,ci)+cur;if(ci===line.length){setTimeout(()=>{del=true;type()},2600);return}}
+    else{ci--;el.innerHTML=line.substring(0,ci)+cur;if(ci===0){del=false;li=(li+1)%lines.length;setTimeout(type,350);return}}
+    setTimeout(type,del?28:52);
+  }
+  setTimeout(type,1600);
+})();
+
+(function(){
+  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{threshold:.12});
+  document.querySelectorAll('.reveal,.tl-item').forEach(el=>obs.observe(el));
+})();
+
+function handleForm(e){
+  e.preventDefault();
+  const btn=document.getElementById('form-btn');
+  btn.textContent='Transmitting...';btn.style.opacity='.7';
+  setTimeout(()=>{
+    btn.textContent='✓ Message Sent';btn.style.background='var(--green)';btn.style.color='#020b18';
+    setTimeout(()=>{btn.textContent='Transmit Message →';btn.style.background='';btn.style.color='';btn.style.opacity='';e.target.reset()},3200);
+  },1100);
+}
+
+(function(){
+  const sections=document.querySelectorAll('section[id]'),links=document.querySelectorAll('.nav-links a');
+  window.addEventListener('scroll',()=>{
+    let cur='';
+    sections.forEach(s=>{if(window.scrollY>=s.offsetTop-100)cur=s.id});
+    links.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+cur?'var(--cyan)':''});
+  },{passive:true});
+})();
+</script>
+</body>
+</html>
